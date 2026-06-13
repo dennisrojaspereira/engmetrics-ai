@@ -1,0 +1,4 @@
+# This directory holds reports you generate locally (e.g. reports/KAN-4.html).
+# Its CONTENTS are git-ignored on purpose: generated reports may contain
+# private data (JIRA URLs, issue keys, author names, repository names).
+# Only this .gitkeep file is tracked, so the directory always exists.

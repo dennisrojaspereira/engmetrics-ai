@@ -1,0 +1,57 @@
+# ---------------------------------------------------------------------------
+# ai-engineering-metrics — files that must NEVER be committed
+# ---------------------------------------------------------------------------
+
+# Secrets / local configuration -------------------------------------------
+.env
+.env.*
+!.env.example
+
+# Python -------------------------------------------------------------------
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+build/
+dist/
+.venv/
+venv/
+env/
+ENV/
+*.egg
+
+# Test / coverage / type caches -------------------------------------------
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+.coverage.*
+coverage.xml
+htmlcov/
+
+# Generated output (real reports may contain private data) ----------------
+# The directories are tracked (via .gitkeep) but their contents are ignored.
+/reports/*
+!/reports/.gitkeep
+/generated/*
+!/generated/.gitkeep
+
+# Local databases / caches / temp files -----------------------------------
+*.sqlite
+*.sqlite3
+*.db
+*.log
+*.tmp
+*.bak
+tmp/
+cache/
+
+# Editors / IDE / tooling state -------------------------------------------
+.vscode/
+.idea/
+.claude/
+*.swp
+
+# OS -----------------------------------------------------------------------
+.DS_Store
+Thumbs.db

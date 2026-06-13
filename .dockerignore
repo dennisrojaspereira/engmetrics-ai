@@ -1,0 +1,37 @@
+# Keep the build context small and free of secrets / local cruft.
+.git
+.github
+.venv
+venv
+env
+__pycache__
+*.py[cod]
+*.egg-info
+.eggs
+build
+dist
+
+# Secrets & local config — never bake into an image
+.env
+.env.*
+!.env.example
+
+# Caches / test artifacts
+.pytest_cache
+.ruff_cache
+.mypy_cache
+.coverage
+htmlcov
+
+# Generated output (mounted at runtime instead)
+/reports/*
+!/reports/.gitkeep
+/generated/*
+!/generated/.gitkeep
+
+# Editor / OS
+.vscode
+.idea
+.claude
+.DS_Store
+Thumbs.db

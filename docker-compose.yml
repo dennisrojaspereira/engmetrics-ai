@@ -1,0 +1,27 @@
+# Local development with Docker.
+#
+#   docker compose build
+#   docker compose up                     # builds + generates a mock demo dashboard
+#   docker compose run --rm app ai-engineering-metrics analyze --epic DEMO-1 --mock
+#   docker compose run --rm app pytest
+#   docker compose run --rm app ruff check .
+#   docker compose run --rm app mypy
+#   docker compose run --rm app bandit -c pyproject.toml -r src
+services:
+  app:
+    build: .
+    image: ai-engineering-metrics:dev
+    working_dir: /app
+    environment:
+      # Default to mock mode so the container never needs real credentials.
+      MOCK_MODE: "${MOCK_MODE:-true}"
+    volumes:
+      # Live-mount the source for fast iteration and to surface generated output.
+      - ./src:/app/src
+      - ./tests:/app/tests
+      - ./generated:/app/generated
+      - ./reports:/app/reports
+    # `docker compose up` produces a sanitized demo dashboard, then exits.
+    command:
+      ["ai-engineering-metrics", "analyze", "--epic", "DEMO-1", "--mock",
+       "--output", "/app/generated/demo.html"]

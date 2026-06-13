@@ -1,0 +1,11 @@
+{
+  "1": {"review_cycles": 1, "review_comments": 2, "requested_changes": 0, "commits_after_review": 1, "reviewers": ["liu-wei"], "time_to_merge_hours": 6.5},
+  "2": {"review_cycles": 2, "review_comments": 5, "requested_changes": 1, "commits_after_review": 3, "reviewers": ["liu-wei", "sara-nilsson"], "time_to_merge_hours": 18.0},
+  "3": {"review_cycles": 1, "review_comments": 1, "requested_changes": 0, "commits_after_review": 0, "reviewers": ["pedro-souza"], "time_to_merge_hours": 4.0},
+  "4": {"review_cycles": 3, "review_comments": 9, "requested_changes": 2, "commits_after_review": 4, "reviewers": ["ana-muller", "liu-wei"]},
+  "5": {"review_cycles": 2, "review_comments": 4, "requested_changes": 1, "commits_after_review": 2, "reviewers": ["sara-nilsson"], "time_to_merge_hours": 12.0},
+  "6": {"review_cycles": 4, "review_comments": 12, "requested_changes": 3, "commits_after_review": 6, "reverts_detected": 1, "reviewers": ["ana-muller", "liu-wei"], "time_to_merge_hours": 26.0},
+  "7": {"review_cycles": 1, "review_comments": 3, "requested_changes": 0, "commits_after_review": 1, "reviewers": ["pedro-souza"]},
+  "8": {"review_cycles": 2, "review_comments": 6, "requested_changes": 1, "commits_after_review": 2, "reviewers": ["liu-wei"]},
+  "9": {"review_cycles": 5, "review_comments": 15, "requested_changes": 4, "commits_after_review": 8, "reverts_detected": 1, "reviewers": ["ana-muller", "sara-nilsson"], "time_to_merge_hours": 34.0}
+}

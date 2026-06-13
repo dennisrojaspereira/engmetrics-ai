@@ -1,0 +1,21 @@
+# Run the full quality + security suite in a container, exactly like CI:
+#
+#   docker compose -f docker-compose.test.yml run --rm test
+#
+services:
+  test:
+    build: .
+    image: ai-engineering-metrics:dev
+    working_dir: /app
+    environment:
+      MOCK_MODE: "true"
+    command:
+      - sh
+      - -c
+      - |
+        set -e
+        echo "== ruff (lint) ==";        ruff check .
+        echo "== ruff (format) ==";      ruff format --check .
+        echo "== mypy ==";               mypy
+        echo "== bandit (SAST) ==";      bandit -c pyproject.toml -r src
+        echo "== pytest + coverage ==";  pytest --cov=ai_engineering_metrics --cov-report=term-missing

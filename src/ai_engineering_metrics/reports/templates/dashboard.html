@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>AI Engineering Metrics — {{ epic.key }}</title>
+<script src="https://cdn.plot.ly/plotly-2.32.0.min.js" charset="utf-8"></script>
+<style>
+  :root {
+    --purple: #6d28d9;
+    --purple-dark: #4c1d95;
+    --purple-light: #a78bfa;
+    --purple-50: #f5f3ff;
+    --purple-100: #ede9fe;
+    --ink: #1f1b2e;
+    --muted: #6b7280;
+    --line: #ece9f5;
+    --green: #10b981;
+    --amber: #f59e0b;
+    --red: #ef4444;
+    --rose: #fb7185;
+    --shadow: 0 1px 2px rgba(76,29,149,.06), 0 8px 24px rgba(76,29,149,.08);
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: Inter, "Segoe UI", system-ui, -apple-system, sans-serif;
+    background: linear-gradient(180deg, #faf9ff 0%, #f3f0fb 100%);
+    color: var(--ink);
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: 1280px; margin: 0 auto; padding: 28px 28px 64px; }
+
+  /* Header */
+  .header {
+    background: linear-gradient(120deg, var(--purple-dark), var(--purple) 60%, var(--purple-light));
+    color: #fff;
+    border-radius: 20px;
+    padding: 28px 32px;
+    box-shadow: var(--shadow);
+    position: relative;
+    overflow: hidden;
+  }
+  .header::after {
+    content: ""; position: absolute; right: -60px; top: -60px;
+    width: 240px; height: 240px; border-radius: 50%;
+    background: rgba(255,255,255,.08);
+  }
+  .eyebrow { text-transform: uppercase; letter-spacing: .14em; font-size: 12px; opacity: .85; }
+  .header h1 { margin: 6px 0 4px; font-size: 26px; font-weight: 700; }
+  .header .sub { opacity: .9; font-size: 14px; }
+  .chips { margin-top: 14px; display: flex; flex-wrap: wrap; gap: 8px; }
+  .chip {
+    background: rgba(255,255,255,.16); border: 1px solid rgba(255,255,255,.25);
+    padding: 4px 12px; border-radius: 999px; font-size: 12px;
+  }
+  .header-meta { margin-top: 16px; display: flex; gap: 28px; flex-wrap: wrap; font-size: 13px; }
+  .header-meta b { display: block; font-size: 15px; font-weight: 600; }
+  .header-meta span { opacity: .8; }
+
+  /* Section */
+  .section-title { font-size: 15px; font-weight: 700; margin: 34px 4px 14px; color: var(--purple-dark); }
+
+  /* Cards */
+  .cards { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-top: 22px; }
+  .card {
+    background: #fff; border: 1px solid var(--line); border-radius: 16px;
+    padding: 18px 18px 16px; box-shadow: var(--shadow);
+  }
+  .card .label { color: var(--muted); font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: .05em; }
+  .card .value { font-size: 28px; font-weight: 700; margin-top: 8px; }
+  .card .hint { color: var(--muted); font-size: 12px; margin-top: 4px; }
+  .card.accent { background: linear-gradient(135deg, var(--purple), var(--purple-dark)); border: none; color: #fff; }
+  .card.accent .label, .card.accent .hint { color: rgba(255,255,255,.85); }
+
+  /* Charts */
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .panel {
+    background: #fff; border: 1px solid var(--line); border-radius: 16px;
+    padding: 16px 18px; box-shadow: var(--shadow);
+  }
+  .panel h3 { margin: 2px 4px 8px; font-size: 14px; font-weight: 600; }
+
+  /* Tables */
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  thead th {
+    text-align: left; color: var(--muted); font-weight: 600; font-size: 11px;
+    text-transform: uppercase; letter-spacing: .05em;
+    padding: 10px 12px; border-bottom: 2px solid var(--purple-100);
+  }
+  tbody td { padding: 11px 12px; border-bottom: 1px solid var(--line); }
+  tbody tr:hover { background: var(--purple-50); }
+  td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+
+  .badge { display: inline-block; padding: 2px 10px; border-radius: 999px; font-size: 11px; font-weight: 600; }
+  .badge.purple { background: var(--purple-100); color: var(--purple-dark); }
+  .badge.done { background: #dcfce7; color: #15803d; }
+  .badge.progress { background: #fef3c7; color: #b45309; }
+  .badge.review { background: #e0e7ff; color: #4338ca; }
+  .badge.open { background: #e0f2fe; color: #0369a1; }
+  .badge.merged { background: #ede9fe; color: var(--purple-dark); }
+
+  .risk { display: inline-flex; align-items: center; gap: 6px; font-weight: 600; }
+  .dot { width: 9px; height: 9px; border-radius: 50%; display: inline-block; }
+  .lvl-low { color: var(--green); } .lvl-low .dot { background: var(--green); }
+  .lvl-moderate { color: var(--amber); } .lvl-moderate .dot { background: var(--amber); }
+  .lvl-high { color: var(--rose); } .lvl-high .dot { background: var(--rose); }
+  .lvl-critical { color: var(--red); } .lvl-critical .dot { background: var(--red); }
+  .lvl-unknown { color: var(--muted); } .lvl-unknown .dot { background: var(--purple-light); }
+
+  /* Risk gauge */
+  .risk-hero { display: grid; grid-template-columns: 220px 1fr; gap: 24px; align-items: center; }
+  .gauge { text-align: center; }
+  .gauge .score { font-size: 52px; font-weight: 800; line-height: 1; }
+  .gauge .of { color: var(--muted); font-size: 13px; }
+  .bar { height: 10px; border-radius: 999px; background: var(--purple-100); overflow: hidden; margin-top: 6px; }
+  .bar > span { display: block; height: 100%; background: linear-gradient(90deg, var(--green), var(--amber), var(--red)); }
+  .comp-row { display: grid; grid-template-columns: 180px 1fr 60px; gap: 12px; align-items: center; margin: 8px 0; font-size: 13px; }
+  .comp-bar { height: 8px; border-radius: 999px; background: var(--purple-100); overflow: hidden; }
+  .comp-bar > span { display: block; height: 100%; background: var(--purple); }
+
+  .footer { color: var(--muted); font-size: 12px; text-align: center; margin-top: 40px; }
+  .na { color: var(--muted); }
+
+  /* Clickable PR rows + modal */
+  .pr-row { cursor: pointer; }
+  .modal-overlay {
+    position: fixed; inset: 0; background: rgba(31,27,46,.45); backdrop-filter: blur(2px);
+    display: none; align-items: center; justify-content: center; z-index: 50; padding: 20px;
+  }
+  .modal-overlay.open { display: flex; }
+  .modal {
+    background: #fff; border-radius: 18px; width: min(720px, 100%); max-height: 88vh; overflow: auto;
+    box-shadow: 0 24px 64px rgba(76,29,149,.28); animation: pop .14s ease-out;
+  }
+  @keyframes pop { from { transform: translateY(8px) scale(.98); opacity: 0; } to { transform: none; opacity: 1; } }
+  .modal-head {
+    background: linear-gradient(120deg, var(--purple-dark), var(--purple)); color: #fff;
+    padding: 18px 22px; border-radius: 18px 18px 0 0; position: sticky; top: 0;
+  }
+  .modal-head .pr-num { font-size: 12px; opacity: .85; letter-spacing: .04em; }
+  .modal-head h2 { margin: 4px 0 0; font-size: 18px; font-weight: 700; }
+  .modal-head .meta { margin-top: 8px; font-size: 12px; opacity: .9; display: flex; gap: 14px; flex-wrap: wrap; }
+  .modal-body { padding: 20px 22px 24px; }
+  .modal-body h4 { margin: 18px 0 10px; font-size: 13px; color: var(--purple-dark); text-transform: uppercase; letter-spacing: .05em; }
+  .modal-body h4:first-child { margin-top: 0; }
+  .hint-inline { font-weight: 400; text-transform: none; letter-spacing: 0; color: var(--muted); font-size: 11px; margin-left: 8px; }
+  .metrics { display: grid; grid-template-columns: 1fr 1fr; gap: 8px 14px; }
+  .metric { display: flex; justify-content: space-between; align-items: center; gap: 10px; font-size: 13px; padding: 9px 12px; border-radius: 10px; background: var(--purple-50); border-left: 3px solid var(--purple-light); }
+  .metric.warn { border-left-color: var(--amber); }
+  .metric.bad { border-left-color: var(--red); }
+  .metric.ok { border-left-color: var(--green); }
+  .metric.info { border-left-color: var(--purple); }
+  .metric .ml { color: #44425a; display: inline-flex; align-items: center; gap: 5px; }
+  .metric .mv { font-weight: 700; }
+  .metric.ok .mv { color: var(--green); } .metric.warn .mv { color: var(--amber); }
+  .metric.bad .mv { color: var(--red); } .metric.info .mv { color: var(--purple); }
+  .help { cursor: help; width: 14px; height: 14px; border-radius: 50%; background: var(--purple-light); color: #fff;
+          font-size: 10px; line-height: 14px; text-align: center; display: inline-block; font-weight: 700; flex: none; }
+  .comp { margin: 7px 0; }
+  .comp .row { display: flex; justify-content: space-between; font-size: 12px; margin-bottom: 3px; }
+  .comp .track { height: 7px; background: var(--purple-100); border-radius: 999px; overflow: hidden; }
+  .comp .track > span { display: block; height: 100%; background: var(--purple); }
+  .notes { margin: 0; padding-left: 18px; font-size: 13px; color: #44425a; }
+  .notes li { margin: 4px 0; }
+  .modal-actions { margin-top: 20px; display: flex; gap: 10px; }
+  .btn { padding: 9px 16px; border-radius: 10px; font-size: 13px; font-weight: 600; text-decoration: none; border: none; cursor: pointer; }
+  .btn-primary { background: var(--purple); color: #fff; }
+  .btn-ghost { background: var(--purple-50); color: var(--purple-dark); }
+  .modal-close { float: right; cursor: pointer; font-size: 20px; line-height: 1; opacity: .85; background: none; border: none; color: #fff; }
+  @media (max-width: 980px) {
+    .cards { grid-template-columns: repeat(2, 1fr); }
+    .grid-2 { grid-template-columns: 1fr; }
+    .risk-hero { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- ============================ EPIC HEADER ======================== -->
+  <header class="header">
+    <div class="eyebrow">AI Engineering Metrics · Epic Report</div>
+    <h1>{{ epic.key }} — {{ epic.summary }}</h1>
+    <div class="sub">Status: <b>{{ epic.status }}</b> · Owner: {{ epic.assignee or "—" }}</div>
+    {% if epic.labels %}
+    <div class="chips">
+      {% for label in epic.labels %}<span class="chip">{{ label }}</span>{% endfor %}
+    </div>
+    {% endif %}
+    <div class="header-meta">
+      <div><span>Stories</span><b>{{ report.stories|length }}</b></div>
+      <div><span>Pull requests</span><b>{{ report.all_pull_requests|length }}</b></div>
+      <div><span>Created</span><b>{{ epic.created_at.date() if epic.created_at else "—" }}</b></div>
+      <div><span>Updated</span><b>{{ epic.updated_at.date() if epic.updated_at else "—" }}</b></div>
+      <div><span>Generated</span><b>{{ report.generated_at.strftime("%Y-%m-%d %H:%M UTC") }}</b></div>
+    </div>
+  </header>
+
+  <!-- ============================ KPI CARDS ========================== -->
+  <div class="cards">
+    <div class="card accent">
+      <div class="label">Hours saved</div>
+      <div class="value">{{ report.productivity.hours_saved | f1 }} h</div>
+      <div class="hint">{{ report.productivity.savings_percent | f1 }}% vs. no-AI estimate</div>
+    </div>
+    <div class="card">
+      <div class="label">Total AI tokens</div>
+      <div class="value">{{ report.ai_usage.total_tokens | int_ }}</div>
+      <div class="hint">{{ report.ai_usage.tokens_per_story | int_ }} per story (avg)</div>
+    </div>
+    <div class="card">
+      <div class="label">Estimated AI cost</div>
+      <div class="value">{{ report.ai_usage.estimated_cost | money }}</div>
+      <div class="hint">{{ report.ai_usage.cost_per_hour_saved | money }} / hour saved</div>
+    </div>
+    <div class="card">
+      <div class="label">AI Dependency Risk</div>
+      <div class="value">{{ report.risk.score | f1 }}</div>
+      <div class="hint">Level: {{ report.risk.level | capitalize }}</div>
+    </div>
+  </div>
+
+  <div class="cards">
+    <div class="card">
+      <div class="label">Tokens / changed line</div>
+      <div class="value">{{ report.ai_usage.tokens_per_changed_line | f1 }}</div>
+      <div class="hint">{{ report.ai_usage.tokens_per_added_line | f1 }} per added line</div>
+    </div>
+    <div class="card">
+      <div class="label">Tokens / story point</div>
+      <div class="value">{{ report.ai_usage.tokens_per_story_point | int_ }}</div>
+      <div class="hint">{{ report.ai_usage.tokens_per_hour_saved | int_ }} per hour saved</div>
+    </div>
+    <div class="card">
+      <div class="label">Avg lead time</div>
+      <div class="value">{{ report.productivity.avg_lead_time_hours | f1 }} h</div>
+      <div class="hint">{{ report.productivity.prs_per_story | f1 }} PRs / story</div>
+    </div>
+    <div class="card">
+      <div class="label">Avg time to merge</div>
+      <div class="value">{{ report.rework.avg_time_to_merge_hours | f1 }} h</div>
+      <div class="hint">{{ report.rework.total_review_cycles }} review cycles total</div>
+    </div>
+  </div>
+
+  <!-- ============================ CHARTS ============================= -->
+  <div class="section-title">AI usage & productivity</div>
+  <div class="grid-2">
+    <div class="panel"><h3>AI tokens per story</h3>{{ charts.tokens_per_story | safe }}</div>
+    <div class="panel"><h3>AI tokens per developer</h3>{{ charts.tokens_per_dev | safe }}</div>
+    <div class="panel"><h3>Estimated hours: with vs. without AI</h3>{{ charts.savings_per_story | safe }}</div>
+    <div class="panel"><h3>Tokens per changed line</h3>{{ charts.tokens_per_changed_line | safe }}</div>
+  </div>
+  <div class="section-title">Risk</div>
+  <div class="panel"><h3>AI dependency risk per pull request</h3>{{ charts.risk_per_pr | safe }}</div>
+
+  <!-- ============================ RISK BREAKDOWN ===================== -->
+  <div class="section-title">AI Dependency Risk Score</div>
+  <div class="panel">
+    <div class="risk-hero">
+      <div class="gauge">
+        <div class="score lvl-{{ report.risk.level }}">{{ report.risk.score | f1 }}</div>
+        <div class="of">/ 100 · {{ report.risk.level | capitalize }}</div>
+        <div class="bar"><span style="width: {{ report.risk.score }}%"></span></div>
+      </div>
+      <div>
+        {% for c in report.risk.components %}
+        <div class="comp-row">
+          <span>{{ c.name | replace("_", " ") | capitalize }}</span>
+          <span class="comp-bar"><span style="width: {{ (c.normalized * 100) | round(0, 'floor') }}%"></span></span>
+          <span class="num">{{ c.contribution | f1 }}</span>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================ STORIES TABLE ====================== -->
+  <div class="section-title">Stories</div>
+  <div class="panel">
+    <table>
+      <thead><tr>
+        <th>Key</th><th>Summary</th><th>Assignee</th><th>Status</th>
+        <th class="num">SP</th><th class="num">Tokens</th>
+        <th class="num">Est. w/o AI</th><th class="num">Est. w/ AI</th>
+        <th class="num">Saved</th><th class="num">Lead time</th><th class="num">PRs</th><th>Risk</th>
+      </tr></thead>
+      <tbody>
+        {% for s in report.stories %}
+        {% set sr = story_risk_levels.get(s.key) %}
+        <tr>
+          <td><b>{{ s.key }}</b></td>
+          <td>{{ s.summary }}</td>
+          <td>{{ s.assignee or "—" }}</td>
+          <td><span class="badge purple">{{ s.status }}</span></td>
+          <td class="num">{{ s.story_points | f1 if s.story_points is not none else "—" }}</td>
+          <td class="num">{{ s.ai_tokens | int_ }}</td>
+          <td class="num">{{ s.estimate_without_ai_hours | f1 }}</td>
+          <td class="num">{{ s.estimate_with_ai_hours | f1 }}</td>
+          <td class="num">{{ s.hours_saved | f1 }}</td>
+          <td class="num">{% if s.lead_time_hours is not none %}{{ s.lead_time_hours | f1 }} h{% else %}<span class="na">—</span>{% endif %}</td>
+          <td class="num">{{ s.pull_requests|length }}</td>
+          <td>{% if sr %}<span class="risk lvl-{{ sr.level }}"><span class="dot"></span>{{ sr.score | f1 }}</span>{% else %}—{% endif %}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ============================ PRS TABLE ========================== -->
+  <div class="section-title">Pull requests</div>
+  <div class="panel">
+    <table>
+      <thead><tr>
+        <th>PR</th><th>Title</th><th>Repo</th><th>Author</th><th>Status</th>
+        <th class="num">+</th><th class="num">−</th><th class="num">Files</th>
+        <th class="num">Commits</th><th class="num">Reviews</th><th class="num">Δ req.</th>
+        <th class="num">TTM</th><th>Risk</th>
+      </tr></thead>
+      <tbody>
+        {% for pr in report.all_pull_requests %}
+        <tr class="pr-row" data-key="{{ pr_key(pr.repository, pr.number) }}" title="Click to see the evaluation">
+          <td><b>#{{ pr.number }}</b></td>
+          <td>{{ pr.title }}</td>
+          <td>{{ pr.repository }}</td>
+          <td>{{ pr.author }}</td>
+          <td><span class="badge {{ 'merged' if pr.status == 'merged' else 'open' }}">{{ pr.status }}</span></td>
+          <td class="num">{{ pr.additions | int_ }}</td>
+          <td class="num">{{ pr.deletions | int_ }}</td>
+          <td class="num">{{ pr.changed_files }}</td>
+          <td class="num">{{ pr.commits }}</td>
+          <td class="num">{{ pr.review_comments }}</td>
+          <td class="num">{{ pr.requested_changes }}</td>
+          <td class="num">{% if pr.time_to_merge_hours is not none %}{{ pr.time_to_merge_hours | f1 }} h{% else %}<span class="na">—</span>{% endif %}</td>
+          <td><span class="risk lvl-{{ risk_levels.get(pr.number, 'unknown') }}"><span class="dot"></span></span></td>
+        </tr>
+        {% else %}
+        <tr><td colspan="13" class="na" style="text-align:center;padding:18px">No linked pull requests found.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <!-- ============================ QUALITY + REWORK =================== -->
+  <div class="grid-2">
+    <div>
+      <div class="section-title">Code quality
+        <span style="font-weight:400;color:var(--muted)">· epic overview ({{ report.quality.source }}) · click a PR for per-PR detail</span>
+      </div>
+      <div class="panel">
+        <table>
+          <tbody>
+            <tr><td>Cyclomatic complexity</td><td class="num">{{ report.quality.cyclomatic_complexity | f1 if report.quality.cyclomatic_complexity is not none else "—" }}</td></tr>
+            <tr><td>Cognitive complexity</td><td class="num">{{ report.quality.cognitive_complexity | f1 if report.quality.cognitive_complexity is not none else "—" }}</td></tr>
+            <tr><td>Duplication</td><td class="num">{{ report.quality.duplication_percent | f1 ~ "%" if report.quality.duplication_percent is not none else "—" }}</td></tr>
+            <tr><td>Code smells</td><td class="num">{{ report.quality.code_smells if report.quality.code_smells is not none else "—" }}</td></tr>
+            <tr><td>Static bugs</td><td class="num">{{ report.quality.static_bugs if report.quality.static_bugs is not none else "—" }}</td></tr>
+            <tr><td>Vulnerabilities</td><td class="num">{{ report.quality.vulnerabilities if report.quality.vulnerabilities is not none else "—" }}</td></tr>
+            <tr><td>Test coverage</td><td class="num">{{ report.quality.test_coverage_percent | f1 ~ "%" if report.quality.test_coverage_percent is not none else "—" }}</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <div>
+      <div class="section-title">Rework
+        <span style="font-weight:400;color:var(--muted)">· epic overview · click a PR for per-PR detail</span>
+      </div>
+      <div class="panel">
+        <table>
+          <tbody>
+            <tr><td>Avg. time to merge</td><td class="num">{{ report.rework.avg_time_to_merge_hours | f1 ~ " h" if report.rework.avg_time_to_merge_hours is not none else "—" }}</td></tr>
+            <tr><td>Review cycles</td><td class="num">{{ report.rework.total_review_cycles }}</td></tr>
+            <tr><td>Review comments</td><td class="num">{{ report.rework.total_review_comments }}</td></tr>
+            <tr><td>Requested changes</td><td class="num">{{ report.rework.total_requested_changes }}</td></tr>
+            <tr><td>Commits after review</td><td class="num">{{ report.rework.total_commits_after_review }}</td></tr>
+            <tr><td>Reverts detected</td><td class="num">{{ report.rework.reverts_detected }}</td></tr>
+            <tr><td>Files touched again later</td><td class="num">{{ report.rework.files_touched_again_later }}</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">
+    Generated by ai-engineering-metrics · {{ report.generated_at.strftime("%Y-%m-%d %H:%M UTC") }}
+    · Quality source: {{ report.quality.source }}
+  </div>
+</div>
+
+<!-- ============================ PR EVALUATION MODAL ================== -->
+<div class="modal-overlay" id="pr-modal">
+  <div class="modal" role="dialog" aria-modal="true">
+    <div class="modal-head">
+      <button class="modal-close" id="pr-modal-close" aria-label="Close">&times;</button>
+      <div class="pr-num" id="m-num"></div>
+      <h2 id="m-title"></h2>
+      <div class="meta" id="m-meta"></div>
+    </div>
+    <div class="modal-body">
+      <h4>Code quality — this PR <span class="hint-inline">hover ⓘ for tips</span></h4>
+      <div class="metrics" id="m-quality"></div>
+      <h4>Rework — this PR</h4>
+      <div class="metrics" id="m-rework"></div>
+      <h4>AI dependency risk breakdown</h4>
+      <div id="m-risk"></div>
+      <h4>Evaluation notes</h4>
+      <ul class="notes" id="m-notes"></ul>
+      <div class="modal-actions">
+        <a class="btn btn-primary" id="m-link" href="#" target="_blank" rel="noopener">Open PR on GitHub ↗</a>
+        <button class="btn btn-ghost" id="m-close2">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script id="pr-data" type="application/json">{{ pr_data_json | safe }}</script>
+<script>
+(function () {
+  const data = JSON.parse(document.getElementById("pr-data").textContent || "{}");
+  const overlay = document.getElementById("pr-modal");
+  const esc = (s) => String(s == null ? "" : s).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[c]));
+
+  function open(key) {
+    const pr = data[key];
+    if (!pr) return;
+    document.getElementById("m-num").textContent = pr.repository + "  ·  PR #" + pr.number + "  ·  " + pr.status;
+    document.getElementById("m-title").textContent = pr.title;
+    const ttm = pr.time_to_merge_hours != null ? (pr.time_to_merge_hours + " h to merge") : "not merged";
+    document.getElementById("m-meta").innerHTML =
+      "<span>👤 " + esc(pr.author) + "</span><span>🌿 " + esc(pr.branch) + "</span>" +
+      "<span>➕ " + pr.additions + " / ➖ " + pr.deletions + "</span><span>🗂 " + pr.changed_files +
+      " files</span><span>⏱ " + esc(ttm) + "</span>";
+
+    const renderMetrics = (list) => (list || []).map(m =>
+      '<div class="metric ' + m.status + '">' +
+        '<span class="ml">' + esc(m.label) +
+          '<span class="help" title="' + esc(m.tip) + '">i</span></span>' +
+        '<span class="mv">' + esc(m.value) + '</span>' +
+      '</div>'
+    ).join("");
+    document.getElementById("m-quality").innerHTML =
+      renderMetrics(pr.quality_metrics) || '<div class="na" style="font-size:13px">No diff available to evaluate.</div>';
+    document.getElementById("m-rework").innerHTML = renderMetrics(pr.rework_metrics);
+
+    const risk = pr.risk;
+    if (risk && risk.components && risk.components.length) {
+      const max = Math.max.apply(null, risk.components.map(c => c.contribution).concat([1]));
+      document.getElementById("m-risk").innerHTML =
+        '<div style="font-size:13px;margin-bottom:8px">Score <b>' + risk.score + '</b> / 100 — <b>' + esc(risk.level) + '</b></div>' +
+        risk.components.map(c =>
+          '<div class="comp"><div class="row"><span>' + esc(c.name) + '</span><span>' + c.contribution + '</span></div>' +
+          '<div class="track"><span style="width:' + Math.round(c.contribution / max * 100) + '%"></span></div></div>'
+        ).join("");
+    } else {
+      document.getElementById("m-risk").innerHTML = '<div class="na" style="font-size:13px">No risk breakdown.</div>';
+    }
+
+    document.getElementById("m-notes").innerHTML = (pr.notes || []).map(n => "<li>" + esc(n) + "</li>").join("");
+
+    const link = document.getElementById("m-link");
+    if (pr.url) { link.href = pr.url; link.style.display = ""; } else { link.style.display = "none"; }
+
+    overlay.classList.add("open");
+  }
+  function close() { overlay.classList.remove("open"); }
+
+  document.querySelectorAll(".pr-row").forEach(row =>
+    row.addEventListener("click", () => open(row.getAttribute("data-key")))
+  );
+  document.getElementById("pr-modal-close").addEventListener("click", close);
+  document.getElementById("m-close2").addEventListener("click", close);
+  overlay.addEventListener("click", e => { if (e.target === overlay) close(); });
+  document.addEventListener("keydown", e => { if (e.key === "Escape") close(); });
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,3 @@
+# Scratch directory for ad-hoc / machine-generated output (also git-ignored).
+# Use this for throwaway runs you do not want tracked. See examples/ for the
+# sanitized, committable demo dashboard.

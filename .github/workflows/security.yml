@@ -1,0 +1,56 @@
+name: Security
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  schedule:
+    # Weekly re-scan so newly disclosed CVEs are caught even without a push.
+    - cron: "0 6 * * 1"
+
+permissions:
+  contents: read
+
+jobs:
+  sast:
+    name: SAST (Bandit)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - run: python -m pip install --upgrade pip bandit
+      - name: Bandit
+        run: bandit -c pyproject.toml -r src
+
+  dependency-audit:
+    name: Dependency audit (pip-audit)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - name: Install runtime deps (clean env)
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install .
+      - name: pip-audit
+        run: |
+          python -m pip install pip-audit
+          pip-audit --desc
+
+  secret-scan:
+    name: Secret scan (gitleaks)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: gitleaks
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
