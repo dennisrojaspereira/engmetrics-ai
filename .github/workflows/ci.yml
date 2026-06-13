@@ -54,6 +54,45 @@ jobs:
           path: coverage.xml
           if-no-files-found: ignore
 
+  build-e2e:
+    name: Build · Publish check · E2E
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install build tools
+        run: python -m pip install --upgrade pip build twine
+
+      - name: Build wheel + sdist
+        run: python -m build
+
+      - name: Check package metadata (simulates PyPI upload validation)
+        run: twine check --strict dist/*
+
+      - name: E2E — install from wheel and run CLI
+        run: |
+          pip install dist/*.whl
+          ai-engineering-metrics --version
+          ai-engineering-metrics analyze --mock --output /tmp/e2e-reports
+          test -f /tmp/e2e-reports/DEMO-1/dashboard.html
+          test -f /tmp/e2e-reports/DEMO-1/metrics.json
+          test -f /tmp/e2e-reports/DEMO-1/stories.csv
+          test -f /tmp/e2e-reports/DEMO-1/pull_requests.csv
+          echo "E2E passed — all artifacts present"
+
+      - name: Upload demo dashboard artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: demo-dashboard
+          path: /tmp/e2e-reports/DEMO-1/dashboard.html
+          if-no-files-found: error
+
   docker:
     name: Docker build + test
     runs-on: ubuntu-latest
