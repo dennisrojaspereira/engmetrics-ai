@@ -162,6 +162,35 @@ uvx ai-engineering-metrics --help
 > Not yet published to PyPI — for now install from a local checkout:
 > `pipx install .` (or `uvx --from . ai-engineering-metrics`).
 
+### Docker (zero Python setup)
+
+No Python, no virtualenv — just Docker:
+
+```bash
+git clone https://github.com/engmetrics-ai/engmetrics-ai.git
+cd ai-engineering-metrics
+
+docker compose build
+docker compose up          # generates generated/demo.html from mock data
+```
+
+Open `generated/demo.html` in your browser. That's it.
+
+Other useful Docker commands:
+
+```bash
+# Run tests inside the container
+docker compose run --rm app pytest
+
+# Lint
+docker compose run --rm app ruff check .
+
+# Custom command
+docker compose run --rm app ai-engineering-metrics analyze --epic DEMO-1 --mock
+```
+
+> For real Jira/GitHub runs, configure credentials on your host and pass them via the `.env` file — real GitHub access requires the host `gh` CLI (the container uses mock mode by default).
+
 ### From source (development)
 
 ```bash
