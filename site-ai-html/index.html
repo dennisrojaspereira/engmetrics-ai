@@ -730,8 +730,9 @@ KAN-4,#1,open,1,1,0</pre></div>
           <div class="ps">
             <div class="ps-n">4</div>
             <div class="ps-b">
-              <h4>Add your repo to .env</h4>
-              <div class="snip">GITHUB_ORG=your-github-org<br>GITHUB_REPOSITORIES=your-repo<br>GITHUB_SEARCH_ALL_REPOS=false</div>
+              <h4>Repo is auto-detected</h4>
+              <p>The CLI reads the GitHub remote from your current directory automatically — no extra config needed. Override with <code style="font-family:monospace;font-size:12px;background:var(--teal-lt);color:var(--teal-dk);padding:1px 5px;border-radius:4px;">--repo owner/name</code> if needed.</p>
+              <div class="snip">ai-engineering-metrics analyze -e PROJ-42 --open<br><span class="c"># repo detected from git remote automatically</span></div>
             </div>
           </div>
         </div>
@@ -753,7 +754,7 @@ KAN-4,#1,open,1,1,0</pre></div>
         <div class="ss"><div class="ss-n">2</div><div class="ss-b"><h4>Install pipx</h4><p>pipx installs CLI tools in isolated environments so they never conflict with your project dependencies.</p></div></div>
         <div class="ss"><div class="ss-n">3</div><div class="ss-b"><h4>Install engmetrics-ai</h4><p>One command installs the CLI and adds <code>ai-engineering-metrics</code> to your PATH.</p></div></div>
         <div class="ss"><div class="ss-n">4</div><div class="ss-b"><h4>Try the demo (zero config)</h4><p>Run with <code>--mock</code> to see a full dashboard with synthetic data. No JIRA or GitHub required.</p></div></div>
-        <div class="ss"><div class="ss-n">5</div><div class="ss-b"><h4>Analyze your real epic</h4><p>Run from inside your repo with a <code>.env</code> file. The tool reads it automatically and picks up the GitHub remote.</p></div></div>
+        <div class="ss"><div class="ss-n">5</div><div class="ss-b"><h4>Analyze your real epic</h4><p>Run from inside your repo. The tool picks up the saved credentials and detects the GitHub remote automatically.</p></div></div>
       </div>
 
       <div class="code-card">
@@ -773,14 +774,12 @@ KAN-4,#1,open,1,1,0</pre></div>
 <span style="color:#4b5563;"># 3. Try the demo</span>
 <span class="t-p">$</span> <span class="t-k">ai-engineering-metrics analyze</span> <span class="t-o">--mock</span>
 
-<span style="color:#4b5563;"># 4. Create .env in your project folder</span>
-<span class="t-p">$</span> cat &gt; .env &lt;&lt;EOF
-JIRA_BASE_URL=<span class="t-s">https://yourco.atlassian.net</span>
-JIRA_EMAIL=<span class="t-s">you@company.com</span>
-JIRA_API_TOKEN=<span class="t-s">your-jira-api-token</span>
-GITHUB_ORG=<span class="t-s">your-org</span>
-GITHUB_REPOSITORIES=<span class="t-s">your-repo</span>
-EOF
+<span style="color:#4b5563;"># 4. Configure credentials (once, saved globally — no .env needed)</span>
+<span class="t-p">$</span> <span class="t-k">ai-engineering-metrics configure</span>
+<span class="t-w">JIRA Base URL:</span> https://yourco.atlassian.net
+<span class="t-w">JIRA Email:</span> you@company.com
+<span class="t-w">JIRA API Token:</span> ************
+<span class="t-ok">✓ Configuration saved to ~/.config/ai-engineering-metrics/config.yaml</span>
 
 <span style="color:#4b5563;"># 5. Analyze your epic</span>
 <span class="t-p">$</span> cd <span class="t-s">your-repo</span>
@@ -814,6 +813,9 @@ EOF
           <tr><td><code>--version</code></td><td>—</td><td>Print installed version and exit</td></tr>
         </tbody>
       </table>
+      <p style="margin-top:18px;font-size:14px;color:var(--muted);">
+        <strong style="color:var(--teal-dk);">ai-engineering-metrics configure</strong> — interactive wizard to set up or update JIRA credentials. Saved to <code>~/.config/ai-engineering-metrics/config.yaml</code> (Linux/macOS) or <code>%APPDATA%\ai-engineering-metrics\config.yaml</code> (Windows). Shared across all repos.
+      </p>
     </div>
 
     <div style="margin-top:24px;">
