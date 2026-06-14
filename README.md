@@ -1,78 +1,131 @@
-# AI Engineering Metrics
+# engmetrics.ai — Engineering Intelligence Platform
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Python 3.12+](https://img.shields.io/badge/python-3.12%2B-blue.svg)](https://www.python.org/)
 [![Status: Experimental](https://img.shields.io/badge/status-experimental-orange.svg)](#status)
 
-**Measure the real impact of AI on your engineering delivery — by connecting Jira epics, GitHub pull requests and AI token consumption into one dashboard.**
+**An Engineering Intelligence Platform for Tech Leads and Engineering Managers — unifying Jira, GitHub and AI usage data into actionable delivery insights.**
 
 > ⚠️ **Status: experimental.** This is an early open-source experiment, not a
 > production-ready product. Metrics are heuristic, integrations are still
-> evolving, and APIs may change. Use it to *start a conversation* about AI
-> impact — not as a system of record. See [Status](#status).
+> evolving, and APIs may change. Use it to *start a conversation* about delivery
+> health — not as a system of record. See [Status](#status).
 
 > 📊 **Live example:** open [`examples/demo-dashboard.html`](examples/demo-dashboard.html)
 > in your browser — a full dashboard generated in mock mode (100% synthetic data).
+
+> 📄 **Product Vision:** see [`docs/product-vision.md`](docs/product-vision.md) for the
+> full platform vision, target audience and roadmap.
 
 ---
 
 ## The problem
 
-Teams are adopting AI coding tools fast, but most can't answer basic questions:
+Tech Leads and Engineering Managers are accountable for delivery outcomes they
+rarely have a unified view of. The data exists — but it is scattered:
 
+- **Jira** holds stories, estimates and status — but no code signal.
+- **GitHub** holds PRs, reviews and merge times — but no delivery context.
+- **AI tools** track token consumption — but not what it produced.
+
+The questions that matter go unanswered every sprint:
+
+- How long does a feature take from first commit to production? (Lead Time)
+- How often are we actually deploying? (Deployment Frequency)
+- What fraction of deploys cause incidents — and how fast do we recover?
 - Are we actually shipping faster with AI, or just spending tokens?
-- How much does the AI assistance for an epic *cost* — and what did it save?
-- Is AI-assisted code creating more rework (review cycles, churn, reverts)?
-- Where is our delivery becoming *dependent* on AI without a quality safety net?
+- Where is review churn signalling scope creep or unclear requirements?
+- Which epics carried the highest rework cost — and why?
 
-The data to answer this already exists — scattered across Jira (estimates, story
-points, AI token fields), GitHub (PR size, reviews, merge times) and your AI
-billing. Nobody has time to stitch it together.
+Nobody has time to stitch this together manually.
 
 ## Why this project exists
 
-**AI Engineering Metrics** stitches that data together for a single Jira **epic**
-and renders an executive-style dashboard. It's built to be:
+**engmetrics.ai** connects Jira and GitHub into a single engineering intelligence
+view — scoped to an epic, rendered as an interactive dashboard. It's built to be:
 
 - **Honest** — it shows what the data supports and clearly marks what's missing.
-- **Explainable** — every risk score and metric breaks down into named factors.
+- **Explainable** — every score and metric breaks down into named, inspectable
+  factors. No black-box numbers.
 - **Local & private** — runs on your machine, talks to your APIs, writes a local
   HTML file. No server, no data leaves your environment.
 - **Evolvable** — a clean domain/integration/report split so it can grow into a
-  web app, an agent or a CI step without a rewrite.
+  web app, an AI agent or a CI step without a rewrite.
 
 ## Who it's for
 
-Tech Leads · Staff Engineers · Engineering Managers · CTOs · and any developer
-trying to quantify how AI is changing how their team ships.
+**Primary:** Tech Leads and Engineering Managers who need a weekly pulse on
+delivery health — flow efficiency, quality signals, deployment frequency and
+rework costs — without building their own dashboards.
+
+**Secondary:** Staff Engineers, Architects and CTOs who need a system-level view
+across epics, teams or quarters.
+
+The platform is useful to any engineering team, regardless of AI tool adoption.
+AI metrics are one of five intelligence lenses, not a prerequisite.
 
 ---
 
-## Features
+## Engineering Intelligence Copilot
+
+The long-term vision for engmetrics.ai goes beyond a dashboard you remember to
+open. The goal is an **Engineering Intelligence Copilot** — a system that
+surfaces the right insight at the right moment, embedded in how Tech Leads and
+EMs already work.
+
+**What this means in practice:**
+
+- **Proactive signals, not reactive queries.** The copilot detects anomalies —
+  a spike in change failure rate, a lead time regression, an epic with
+  unusually high rework — before the sprint review.
+- **Natural language over dashboards.** Ask: *"Which epics this quarter had the
+  highest rework cost?"* or *"How does our deployment frequency compare to last
+  quarter?"* and get a direct, cited answer.
+- **Integrated into existing workflows.** Insights delivered where the team
+  already communicates: PR comments, Slack digests, Jira comments, GitHub
+  Actions summaries.
+- **Agent-composable.** The clean domain model and JSON output are designed to
+  be consumed by AI agents. An LLM can receive the `EpicReport` JSON and
+  produce a narrative delivery review or a risk assessment with no bespoke
+  integration.
+
+The current CLI and HTML dashboard are the **foundation** of this copilot —
+the data pipeline and domain model that make the intelligence possible.
+
+---
+
+## Platform capabilities
+
+### Data sources
+
+Jira and GitHub are the only required data sources. No new instrumentation.
+
+- **Jira** — epics, stories, story points, estimates, resolution dates and
+  custom fields (AI tokens, hours with/without AI).
+- **GitHub (via `gh` CLI)** — PRs matched to Jira keys by title/branch,
+  enriched with diff stats and review data. Repo auto-detected from git remote.
+
+### Five intelligence lenses
+
+| Lens | What it measures |
+|------|-----------------|
+| **DORA metrics** | Deployment Frequency, Lead Time, Change Failure Rate, MTTR — with Elite/High/Medium/Low bands |
+| **AI impact** | Hours saved, token consumption per story point / per hour saved, estimated cost, AI Dependency Risk Score |
+| **Code quality** | Per-PR diff heuristics: complexity proxies, code smells, debug statements, test coverage |
+| **Flow & rework** | Time to merge, review cycles, requested changes, commits after review, reverts |
+| **Risk intelligence** | Explainable 0–100 risk score blending token intensity, coverage, complexity and review churn |
+
+All five lenses are available for any team on Jira + GitHub. AI impact requires
+AI token data in Jira — but the other four lenses work without it.
+
+### Dashboard features
 
 - **Epic → dashboard in one command.** Point it at a Jira epic key; get an HTML
   dashboard (or JSON).
-- **Jira integration** — resolves the epic, its stories and custom fields (AI
-  tokens, story points). Derives *hours saved* from story points when no
-  estimate fields exist.
-- **GitHub integration via the `gh` CLI** — discovers PRs by issue key in the
-  title/branch (with literal-key matching to avoid false positives), enriches
-  them with diff and review data, and **auto-detects the repo** from your git
-  remote.
-- **Metrics across five lenses:**
-  - *Productivity* — hours saved, % savings, lead time, PRs per story.
-  - *AI usage & cost* — tokens per story / PR / changed line / story point /
-    hour saved, plus estimated cost.
-  - *Code quality* — per-PR heuristics from the diff (complexity proxies, code
-    smells, debug statements, tests touched), aggregated to an epic overview.
-  - *Rework* — time to merge, review cycles, requested changes, commits after
-    review, reverts.
-  - *AI Dependency Risk Score (0–100)* — an explainable, weighted blend of token
-    intensity, low savings, low coverage, complexity and review churn.
-- **Per-PR evaluation popup** — click any PR to see its quality/rework breakdown,
-  improvement tooltips, a risk breakdown and a link to the PR on GitHub.
+- **Per-PR evaluation popup** — click any PR to see its quality/rework
+  breakdown, improvement tooltips, a risk score and a link to GitHub.
 - **Mock mode** — a full, realistic demo with zero credentials.
-- **JSON output** — for piping into other tools.
+- **JSON output** — for piping into agents or other tools.
 
 ## Mock mode
 
@@ -286,15 +339,15 @@ needed.
 
 ## Roadmap
 
-This is experimental and the roadmap is intentionally open. Likely next steps:
+See [`docs/product-vision.md`](docs/product-vision.md) for the full evolution
+path. Near-term priorities:
 
-- [ ] Real static-analysis quality source (SonarQube/CodeClimate) instead of
-      diff heuristics.
 - [ ] Multi-epic / portfolio rollups and trends over time.
+- [ ] Real static-analysis quality source (SonarQube/CodeClimate).
 - [ ] Pluggable AI-cost providers and per-model token pricing.
-- [ ] First-class review metrics (no simulation needed) via richer GitHub data.
+- [ ] First-class review metrics via richer GitHub data (no simulation needed).
 - [ ] Publish to PyPI; optional web UI.
-- [ ] Export to CSV / data warehouse.
+- [ ] Agent-ready JSON API for LLM narrative reports (copilot foundation).
 
 Ideas and use cases are very welcome — open an issue.
 
@@ -322,4 +375,5 @@ numbers as directional signals to inform a conversation, not as ground truth.
 [MIT](LICENSE) © Dennis Rojas Pereira
 
 See also: [CONTRIBUTING.md](CONTRIBUTING.md) · [SECURITY.md](SECURITY.md) ·
-[CHANGELOG.md](CHANGELOG.md)
+[CHANGELOG.md](CHANGELOG.md) · [Product Vision](docs/product-vision.md) ·
+[ADR-001](docs/adr/ADR-001-platform-repositioning.md)
