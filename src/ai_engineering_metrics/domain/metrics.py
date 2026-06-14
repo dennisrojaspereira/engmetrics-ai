@@ -173,7 +173,8 @@ def compute_dora(deployments: list[Deployment], period_days: int = 30) -> DoraMe
         deployment_frequency=round(freq, 4),
         deployment_frequency_label=_dora_deploy_freq_label(freq),
         lead_time_hours=avg_lead_time,
-        lead_time_label=_dora_lead_time_label(avg_lead_time) if avg_lead_time is not None
+        lead_time_label=_dora_lead_time_label(avg_lead_time)
+        if avg_lead_time is not None
         else "unknown",
         change_failure_rate=cfr,
         change_failure_rate_label=_dora_cfr_label(cfr),

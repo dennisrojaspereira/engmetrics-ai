@@ -2,7 +2,7 @@
 # Run on demand with:                  pre-commit run --all-files
 minimum_pre_commit_version: "3.5.0"
 default_language_version:
-  python: python3.12
+  python: python3
 
 repos:
   # Basic hygiene + secret-ish guards
