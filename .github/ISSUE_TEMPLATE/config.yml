@@ -1,8 +1,8 @@
 blank_issues_enabled: false
 contact_links:
   - name: 🔒 Report a security vulnerability
-    url: https://github.com/dennisrojaspereira/engmetrics-ai/security/advisories/new
+    url: https://github.com/engmetrics-ai/engmetrics-ai/security/advisories/new
     about: "Do NOT open a public issue for security problems. Report privately — see SECURITY.md."
   - name: 💬 Questions & ideas
-    url: https://github.com/dennisrojaspereira/engmetrics-ai/discussions
+    url: https://github.com/engmetrics-ai/engmetrics-ai/discussions
     about: For open-ended questions, prefer Discussions over issues.

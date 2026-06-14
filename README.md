@@ -161,7 +161,7 @@ uvx ai-engineering-metrics --help
 ### From source (development)
 
 ```bash
-git clone https://github.com/dennisrojaspereira/engmetrics-ai.git
+git clone https://github.com/engmetrics-ai/engmetrics-ai.git
 cd ai-engineering-metrics
 
 python -m venv .venv

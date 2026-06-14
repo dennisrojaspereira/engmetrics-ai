@@ -4,7 +4,7 @@
 
 If you discover a security issue, please **do not open a public issue**.
 Instead, report it privately via
-[GitHub Security Advisories](https://github.com/dennisrojaspereira/engmetrics-ai/security/advisories/new)
+[GitHub Security Advisories](https://github.com/engmetrics-ai/engmetrics-ai/security/advisories/new)
 (Security → Report a vulnerability).
 
 Please include steps to reproduce and the affected version. We aim to

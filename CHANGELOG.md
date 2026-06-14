@@ -38,5 +38,5 @@ First public release.
 - Mock mode (`--mock`) with realistic synthetic data; JSON output (`--format json`).
 - Optional demo simulation files for story points and PR review/rework signals.
 
-[Unreleased]: https://github.com/dennisrojaspereira/engmetrics-ai/compare/v0.1.0...HEAD
-[0.1.0]: https://github.com/dennisrojaspereira/engmetrics-ai/releases/tag/v0.1.0
+[Unreleased]: https://github.com/engmetrics-ai/engmetrics-ai/compare/v0.1.0...HEAD
+[0.1.0]: https://github.com/engmetrics-ai/engmetrics-ai/releases/tag/v0.1.0

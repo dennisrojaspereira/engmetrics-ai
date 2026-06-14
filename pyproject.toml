@@ -36,9 +36,9 @@ dependencies = [
 [project.urls]
 Homepage = "https://engmetrics.ai"
 Documentation = "https://engmetrics.ai"
-Repository = "https://github.com/dennisrojaspereira/engmetrics-ai"
-Issues = "https://github.com/dennisrojaspereira/engmetrics-ai/issues"
-Changelog = "https://github.com/dennisrojaspereira/engmetrics-ai/blob/main/CHANGELOG.md"
+Repository = "https://github.com/engmetrics-ai/engmetrics-ai"
+Issues = "https://github.com/engmetrics-ai/engmetrics-ai/issues"
+Changelog = "https://github.com/engmetrics-ai/engmetrics-ai/blob/main/CHANGELOG.md"
 
 [project.optional-dependencies]
 pandas = ["pandas>=2.2"]
