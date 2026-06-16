@@ -401,5 +401,3 @@ def _commit_message(commit: dict[str, Any]) -> str:
     headline = commit.get("messageHeadline") or ""
     body = commit.get("messageBody") or ""
     return f"{headline}\n{body}"
-
-
