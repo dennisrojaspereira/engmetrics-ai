@@ -127,6 +127,7 @@ def detect_current_repo() -> tuple[str, str] | None:
             [gh, "repo", "view", "--json", "owner,name"],
             capture_output=True,
             text=True,
+            encoding="utf-8",
             timeout=_GH_TIMEOUT,
         )
     except subprocess.TimeoutExpired:
@@ -192,6 +193,7 @@ class GitHubClient:
             [gh, "auth", "status"],
             capture_output=True,
             text=True,
+            encoding="utf-8",
             timeout=_GH_TIMEOUT,
         )
         if result.returncode != 0:
@@ -207,6 +209,7 @@ class GitHubClient:
                 [gh, *args],
                 capture_output=True,
                 text=True,
+                encoding="utf-8",
                 timeout=_GH_TIMEOUT,
             )
         except subprocess.TimeoutExpired as exc:
@@ -240,7 +243,7 @@ class GitHubClient:
             return ""
         try:
             result = subprocess.run(
-                [gh, *args], capture_output=True, text=True, timeout=_GH_TIMEOUT
+                [gh, *args], capture_output=True, text=True, encoding="utf-8", timeout=_GH_TIMEOUT
             )
         except subprocess.TimeoutExpired:
             return ""
@@ -398,3 +401,5 @@ def _commit_message(commit: dict[str, Any]) -> str:
     headline = commit.get("messageHeadline") or ""
     body = commit.get("messageBody") or ""
     return f"{headline}\n{body}"
+
+
